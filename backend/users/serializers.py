@@ -2,31 +2,27 @@ from core.constants import CODE_LENGTH
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from .models import Code, User
+from .models import Code, User, Follow
 
 
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-
-
-class AdvancedUserSerializer(serializers.ModelSerializer):
+class CreateUserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    password = serializers.CharField(max_length=150, write_only=True)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-        read_only_fields = ('role', )
+        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'password')
 
 
-class AdvancedAdminSerializer(serializers.ModelSerializer):
+class ListUserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
+        fields = ('username', 'id', 'email', 'first_name', 'last_name', 'is_subscribed')
+
+    def get_is_subscribed(self, obj):
+        return Follow.objects.filter(user__username=str(self.context),author__username=obj.username).exists()
 
 
 class UserCodeSerializer(serializers.Serializer):

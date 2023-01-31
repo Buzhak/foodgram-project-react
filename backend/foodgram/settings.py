@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'users.apps.UsersConfig',
-    'recipes.app.RecipesConfig',
+    'recipes.apps.RecipesConfig',
+    'footgram_api.apps.FootgramApiConfig',
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
@@ -109,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny', # заменить на IsAuthenticated
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
