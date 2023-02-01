@@ -14,7 +14,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'password')
 
 
-class ListUserSerializer(serializers.ModelSerializer):
+class DetailUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
