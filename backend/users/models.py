@@ -14,7 +14,7 @@ class User(AbstractUser):
     )
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
-    password = models.CharField(max_length=150, blank=True)
+    password = models.CharField(max_length=150)
 
     def __str__(self):
         return self.username

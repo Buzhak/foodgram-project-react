@@ -25,15 +25,28 @@ class DetailUserSerializer(serializers.ModelSerializer):
         return Follow.objects.filter(user__username=str(self.context),author__username=obj.username).exists()
 
 
-class UserCodeSerializer(serializers.Serializer):
+# class UserCodeSerializer(serializers.Serializer):
+#     username = serializers.CharField(max_length=150)
+#     confirmation_code = serializers.CharField(max_length=CODE_LENGTH)
+
+#     def validate(self, data):
+#         user = get_object_or_404(User, username=data['username'])
+#         if Code.objects.filter(
+#             user=user,
+#             code=data['confirmation_code']
+#         ).exists():
+#             return data
+#         raise serializers.ValidationError('Неверные данные')
+
+
+class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
-    confirmation_code = serializers.CharField(max_length=CODE_LENGTH)
+    password = serializers.CharField(max_length=150)
 
     def validate(self, data):
-        user = get_object_or_404(User, username=data['username'])
-        if Code.objects.filter(
-            user=user,
-            code=data['confirmation_code']
+        if User.objects.filter(
+            username=data['username'],
+            password=data['password']
         ).exists():
             return data
-        raise serializers.ValidationError('Неверные данные')
+        raise serializers.ValidationError('Неверный логин или пароль')

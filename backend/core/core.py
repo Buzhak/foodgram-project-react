@@ -16,12 +16,20 @@ def get_code(length: int) -> str:
     return ''.join(random.sample(char_set, length))
 
 
-def get_tokens_for_user(user):
+def delete_tokens_for_user():
     '''
     Функция отдёт токен  для пользвателя
     '''
+    print('токен удалён') #нужно как-то удалить токен
+
+
+def get_tokens_for_user(user):
+    '''
+    Функция удаляет токен пользователя
+    '''
     token = AccessToken.for_user(user)
-    return {'token': str(token)}
+    return {'auth_token': str(token)}
+
 
 
 def send_email(email: str, confirmation_code: str, username: str):
