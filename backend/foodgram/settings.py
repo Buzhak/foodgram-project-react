@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
     'footgram_api.apps.FootgramApiConfig',
@@ -112,19 +114,27 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10,
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
+
+DJOSER = {
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.IsAuthenticated'],
+        'user_list': ['rest_framework.permissions.IsAuthenticated'],
+        'password_reset': ['rest_framework.permissions.CurrentUser'],
+    },
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CreateUserSerializer',
+        'user': 'users.serializers.DefaultUserSerializer',
+        'user_list': 'users.serializers.DefaultUserSerializer',
+        'current_user': 'users.serializers.DefaultUserSerializer',
+        
+    }
 }
 
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
-    'AUTH_HEADER_TYPES': ('Bearer', )
-}
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 

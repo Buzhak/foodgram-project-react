@@ -4,8 +4,7 @@ from rest_framework.decorators import action
 from rest_framework import status, generics, viewsets, permissions
 from django.shortcuts import get_object_or_404
 from users.models import User
-from users.serializers import CreateUserSerializer, DetailUserSerializer, LoginSerializer
-from core.core import get_tokens_for_user, delete_tokens_for_user
+from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
 
 
 class UserViewSet(viewsets.ViewSet):
@@ -13,7 +12,7 @@ class UserViewSet(viewsets.ViewSet):
     def list(self, request):
         permission_classes = [permissions.AllowAny]
         users = User.objects.all()  
-        serializer = DetailUserSerializer(users, many=True, context=request.user)
+        serializer = DefaultUserSerializer(users, many=True, context=request.user)
         return Response(serializer.data)
 
     def create(self, request):
@@ -28,7 +27,7 @@ class UserViewSet(viewsets.ViewSet):
         permission_classes = [permissions.AllowAny]
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
-        serializer = DetailUserSerializer(user)
+        serializer = DefaultUserSerializer(user)
         return Response(serializer.data) 
 
     @action(
@@ -41,9 +40,9 @@ class UserViewSet(viewsets.ViewSet):
 
         user = get_object_or_404(User, username=request.user)
         if request.method == 'GET':
-            serializer = DetailUserSerializer(user)
+            serializer = DefaultUserSerializer(user)
             return Response(serializer.data)
-        serializer = DetailUserSerializer(
+        serializer = DefaultUserSerializer(
             user,
             data=request.data,
             partial=True
@@ -70,23 +69,3 @@ class UserViewSet(viewsets.ViewSet):
         # serializer.is_valid(raise_exception=True)
         # serializer.save()
         # return Response(serializer.data)
-
-
-class Login(APIView): 
-    permission_classes = [permissions.AllowAny] 
-
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            user = get_object_or_404(User, username=request.data['username'])
-            token = get_tokens_for_user(user)
-            return Response(token, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class Logout(APIView):
-    permission_classes=[permissions.IsAuthenticated]
-
-    def post(self, request):
-        delete_tokens_for_user()
-        return Response(status=status.HTTP_204_NO_CONTENT)

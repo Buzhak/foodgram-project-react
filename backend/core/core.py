@@ -4,31 +4,33 @@ import string
 from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
 from rest_framework_simplejwt.tokens import AccessToken
+from .constants import TOKEN_LENGHT
 
 my_email = settings.YAMDB_EMAIL
 
 
-def get_code(length: int) -> str:
+
+def get_code() -> str:
     '''
     Функция генерирует строку символов длиной "length" символов.
     '''
     char_set = string.ascii_letters + string.digits
-    return ''.join(random.sample(char_set, length))
+    return ''.join(random.sample(char_set, TOKEN_LENGHT))
 
 
 def delete_tokens_for_user():
     '''
-    Функция отдёт токен  для пользвателя
+    Функция удаляет токен пользователя
     '''
     print('токен удалён') #нужно как-то удалить токен
 
 
 def get_tokens_for_user(user):
     '''
-    Функция удаляет токен пользователя
+    Функция отдёт токен  для пользвателя
     '''
-    token = AccessToken.for_user(user)
-    return {'auth_token': str(token)}
+
+    return {'auth_token': get_code()}
 
 
 
