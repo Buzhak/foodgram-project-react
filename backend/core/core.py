@@ -17,23 +17,6 @@ def get_code() -> str:
     char_set = string.ascii_letters + string.digits
     return ''.join(random.sample(char_set, TOKEN_LENGHT))
 
-
-def delete_tokens_for_user():
-    '''
-    Функция удаляет токен пользователя
-    '''
-    print('токен удалён') #нужно как-то удалить токен
-
-
-def get_tokens_for_user(user):
-    '''
-    Функция отдёт токен  для пользвателя
-    '''
-
-    return {'auth_token': get_code()}
-
-
-
 def send_email(email: str, confirmation_code: str, username: str):
     django_send_mail(
         'Ваш код',

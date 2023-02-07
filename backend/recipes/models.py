@@ -1,14 +1,16 @@
 from django.db import models
 from users.models import User
+from .validators import hex_color_validaror
 
 
 class Tag(models.Model):
-    title = models.CharField('тег', max_length=256)
-    color = models.CharField('цвет', max_length=7)
+    name = models.CharField('тег', max_length=256)
+    color = models.CharField('цвет', max_length=7, validators=[hex_color_validaror])
     slug = models.SlugField('слаг',unique=True)
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
+
         
     class Meta:
         verbose_name = "Тег"
@@ -39,7 +41,7 @@ class Recipe(models.Model):
         verbose_name='Автор'
         )
     name = models.CharField('название рецепта', max_length=256)
-    image = models.ImageField('изображение',upload_to='posts/', null=True, blank=True)
+    image = models.ImageField('изображение',upload_to='resipes/images/', null=True, blank=True)
     text = models.TextField('описание',null=True, blank=True)
     cooking_time = models.IntegerField('время приготовления в минутах')
 
@@ -52,12 +54,6 @@ class Recipe(models.Model):
         verbose_name_plural = "Рецепты"
     
 class Ingredient(models.Model):
-    INGREDIENT_DISPLAY = ( 
-        'id: {id}, ' 
-        'name: {product.name}, ' 
-        'measurement_unit: {product.measurement_unit}, '
-        'amount: {amount}'
-    ) 
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,

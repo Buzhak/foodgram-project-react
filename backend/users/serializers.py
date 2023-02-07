@@ -2,7 +2,7 @@ from core.constants import CODE_LENGTH
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from .models import Code, User, Follow
+from .models import User, Follow
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class DefaultUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'id', 'email', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(user__username=str(self.context),author__username=obj.username).exists()
+        return Follow.objects.filter(user=self.context["request"].user,author=obj).exists()
 
 
 # class UserCodeSerializer(serializers.Serializer):
