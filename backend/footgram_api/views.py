@@ -1,11 +1,11 @@
-from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework import status, generics, viewsets, permissions, mixins
+from rest_framework import status, viewsets, permissions, mixins
 from django.shortcuts import get_object_or_404
 
 from recipes.models import Recipe,Tag
-from recipes.serializers import RecipeSerializer, TagSerializer
+from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer
 # from users.models import User
 # from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
 
@@ -90,7 +90,14 @@ class TagViewSet(RetriveListViewSet):
     serializer_class = TagSerializer
 
 
-class RecipeViewSet(OnlyListViewSet):
+class RecipeViewSet(ModelViewSet):     
     permission_classes = [permissions.AllowAny]
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+
+    def create(self, request):
+        serializer = CreateRecipeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

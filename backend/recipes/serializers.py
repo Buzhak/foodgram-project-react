@@ -1,8 +1,9 @@
 import base64
 from rest_framework import serializers
+from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 
-from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient
+from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient, TagRecipe
 from users.serializers import DefaultUserSerializer
 
 
@@ -54,7 +55,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_in_shopping_cart = serializers.SerializerMethodField()
     ingredients = IngredientSerializer(many=True)
     tags = TagSerializer(many=True)
-    author = DefaultUserSerializer()
+    author = DefaultUserSerializer(read_only=True)
     image = Base64ImageField(required=False, allow_null=True)
         
     class Meta():
@@ -68,4 +69,48 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         return Shoping_cart.objects.filter(user=self.context["request"].user, recipe=obj).exists()
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user) 
 
+
+class TagCreateSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Tag
+        fields = ('id')
+
+
+class IngredientCreateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='product.id')
+    class Meta():
+        model = Ingredient
+        fields = ('id', 'amount')
+
+
+class CreateRecipeSerializer(serializers.ModelSerializer):
+    tags = serializers.IntegerField(many=True) !!!тут я сломал все
+    ingredients = IngredientCreateSerializer(many=True)
+    class Meta():
+        model = Recipe
+        fields = ('author' ,'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time')
+        read_only_fields = ('author',)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+    
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+        print(ingredients)
+
+        for ingredient in ingredients:
+            current_ingredient = get_object_or_404(Product, pk=ingredient.product)
+            Ingredient.objects.create(
+                prooduct=current_ingredient, amount=ingredient.amount, recipe=recipe
+            )
+        for tag in tags:
+            current_tag = get_object_or_404(Tag, pk=tag)
+            TagRecipe.objects.create(
+                tag=current_tag, cat=recipe
+            )
+        return recipe 
