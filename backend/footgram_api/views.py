@@ -98,6 +98,10 @@ class RecipeViewSet(ModelViewSet):
     def create(self, request):
         serializer = CreateRecipeSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(author=self.request.user)
+            
+            reсipe = get_object_or_404(Recipe, id=serializer.data['id'])
+            serializer = RecipeSerializer(reсipe)
+            serializer.context['request'] = self.request
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

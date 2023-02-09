@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ingredient, Favorite, Product, Recipe, Shoping_cart, Tag
+from .models import Ingredient, Favorite, Product, Recipe, Shoping_cart, Tag, TagRecipe
 
 
 class ChoiceInline(admin.StackedInline):
@@ -17,3 +17,4 @@ admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag)
 admin.site.register(Favorite)
 admin.site.register(Shoping_cart)
+admin.site.register(TagRecipe)

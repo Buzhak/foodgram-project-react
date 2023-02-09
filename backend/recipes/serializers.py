@@ -87,30 +87,24 @@ class IngredientCreateSerializer(serializers.ModelSerializer):
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
-    tags = serializers.IntegerField(many=True) !!!тут я сломал все
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
     ingredients = IngredientCreateSerializer(many=True)
     class Meta():
         model = Recipe
-        fields = ('author' ,'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time')
-        read_only_fields = ('author',)
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        fields = ('id', 'author' ,'ingredients', 'tags', 'image', 'name', 'text', 'cooking_time')
+        read_only_fields = ('id', 'author',)
     
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(**validated_data)
-        print(ingredients)
-
+        recipe.tags.set(tags)
+        recipe.save()
+        
         for ingredient in ingredients:
-            current_ingredient = get_object_or_404(Product, pk=ingredient.product)
+            current_ingredient = get_object_or_404(Product, pk=ingredient['product']['id'])
             Ingredient.objects.create(
-                prooduct=current_ingredient, amount=ingredient.amount, recipe=recipe
+                product=current_ingredient, amount=ingredient['amount'], recipe=recipe
             )
-        for tag in tags:
-            current_tag = get_object_or_404(Tag, pk=tag)
-            TagRecipe.objects.create(
-                tag=current_tag, cat=recipe
-            )
-        return recipe 
+    
+        return recipe
