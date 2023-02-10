@@ -105,3 +105,14 @@ class RecipeViewSet(ModelViewSet):
             serializer.context['request'] = self.request
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        serializer = CreateRecipeSerializer(instance=recipe, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        reсipe = get_object_or_404(Recipe, id=serializer.data['id'])
+        serializer = RecipeSerializer(reсipe)
+        serializer.context['request'] = self.request
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
