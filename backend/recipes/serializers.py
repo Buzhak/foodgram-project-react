@@ -128,3 +128,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             )
         
         return instance
+
+    def delete(self, instance):
+        instance.delete()
+        Ingredient.objects.filter(recipe=instance).delete()
+
