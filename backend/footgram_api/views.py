@@ -1,10 +1,11 @@
 from rest_framework.viewsets import ViewSet, ModelViewSet
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status, viewsets, permissions, mixins
 from django.shortcuts import get_object_or_404
 
-from recipes.models import Recipe,Tag
+from recipes.models import Recipe,Tag, Shoping_cart
 from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer
 # from users.models import User
 # from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
@@ -116,3 +117,43 @@ class RecipeViewSet(ModelViewSet):
         serializer = RecipeSerializer(reсipe)
         serializer.context['request'] = self.request
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(methods=['post', 'delete'], detail=True)
+    def shoping_cart(self, request, pk):
+        if request.method == 'POST':
+            recipe = get_object_or_404(Recipe, pk=r_pk)
+            user = request.user
+            Shoping_cart.objects.create(user=user, pecipe=recipe)
+            return Response(data ,status=status.HTTP_201_CREATED)
+        data = {'удаление': pk}
+        return Response(data ,status=status.HTTP_201_CREATED)
+
+
+# class ShopingCartViewSet(viewsets.ViewSet):
+#     @action(methods=['post', 'delete'], detail=True, url_path='{r_pk}/shoping_cart/')
+#     def shoping_cart(self, r_pk, request):
+#         if request.method=='POST':
+#             recipe = get_object_or_404(Recipe, pk=r_pk) 
+#             user = request.user
+#             Shoping_cart.objects.create(user=user, pecipe=recipe)
+#             return Response(status=status.HTTP_201_CREATED)
+
+
+# class ShopingCartViewSet(viewsets.ViewSet):
+    
+
+
+    # def create(self, request, r_pk):
+    #     recipe = get_object_or_404(Recipe, pk=r_pk)
+    #     user = request.user
+    #     Shoping_cart.objects.create(user=user, pecipe=recipe)
+    #     return Response(status=status.HTTP_201_CREATED)
+
+    # def delete(self, request, r_pk):
+    #     recipe = get_object_or_404(Recipe, pk=pk)
+    #     user = request.user
+    #     Shoping_cart.objects.delete(user=user, pecipe=recipe)
+    #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
