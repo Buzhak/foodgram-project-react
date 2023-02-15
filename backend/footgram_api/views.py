@@ -3,10 +3,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status, viewsets, permissions, mixins
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 
-from recipes.models import Recipe,Tag, Shoping_cart
-from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer
+from core.core import print_recipes
+from recipes.models import Recipe, Tag, Shoping_cart, Ingredient
+from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer
 # from users.models import User
 # from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
 
@@ -120,13 +121,28 @@ class RecipeViewSet(ModelViewSet):
 
     @action(methods=['post', 'delete'], detail=True)
     def shoping_cart(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = request.user
         if request.method == 'POST':
-            recipe = get_object_or_404(Recipe, pk=r_pk)
-            user = request.user
-            Shoping_cart.objects.create(user=user, pecipe=recipe)
-            return Response(data ,status=status.HTTP_201_CREATED)
-        data = {'удаление': pk}
-        return Response(data ,status=status.HTTP_201_CREATED)
+            data = {'user': user.id, 'recipe': recipe.id}
+            shop_cart_serializer = ShopingCatdSerializer(data=data)
+            if shop_cart_serializer.is_valid():
+                shop_cart_serializer.save()
+                resipe_serializer = RecipeShortSerializer(recipe)
+                return Response(resipe_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(shop_cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if Shoping_cart.objects.filter(user=user.id, recipe=recipe.id).exists():
+            Shoping_cart.objects.filter(user=user.id, recipe=recipe.id).delete()
+            message = {'errors': 'рецепт удалён из списка покупок'}
+            return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+        message = {'errors': 'репепт отсутствует в списке покупок'}
+        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False)
+    def download_shopping_cart(self, request):
+        print_recipes(request.user)
+        message = {'response': 'держи файлик, чувак'}
+        return Response(message ,status=status.HTTP_200_OK)
 
 
 # class ShopingCartViewSet(viewsets.ViewSet):

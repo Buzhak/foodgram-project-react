@@ -46,7 +46,7 @@ class Recipe(models.Model):
     cooking_time = models.IntegerField('время приготовления в минутах')
 
     def __str__(self) -> str:
-        return self.name
+        return f'Рецепт: {self.name}'
 
 
     class Meta:
@@ -68,7 +68,9 @@ class Ingredient(models.Model):
         )
 
     def __str__(self) -> str:
-        return self.product.name
+        if self.amount == 0 or self.amount is None:
+            return f'{self.product.name} - по вкусу'
+        return f'{self.product.name} - {self.amount} {self.product.measurement_unit}'
 
 
     class Meta:

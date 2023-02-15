@@ -1,4 +1,5 @@
 import base64
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
@@ -70,7 +71,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         return Shoping_cart.objects.filter(user=self.context["request"].user, recipe=obj).exists()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user) 
+        serializer.save(author=self.request.user)
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+
+    class Meta():
+
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class TagCreateSerializer(serializers.ModelSerializer):
@@ -84,6 +93,19 @@ class IngredientCreateSerializer(serializers.ModelSerializer):
     class Meta():
         model = Ingredient
         fields = ('id', 'amount')
+
+
+class ShopingCatdSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Shoping_cart
+        fields = ('user', 'recipe')
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Shoping_cart.objects.all(),
+                fields=('user', 'recipe'),
+                message=_("Рецепт уже добавлен в корзину покупок")
+            )
+        ]
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
