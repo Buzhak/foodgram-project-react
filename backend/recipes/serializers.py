@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 
-from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient, TagRecipe
+from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient, TagRecipe, Favorite
 from users.serializers import DefaultUserSerializer
 
 
@@ -104,6 +104,19 @@ class ShopingCatdSerializer(serializers.ModelSerializer):
                 queryset=Shoping_cart.objects.all(),
                 fields=('user', 'recipe'),
                 message=_("Рецепт уже добавлен в корзину покупок")
+            )
+        ]
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Favorite
+        fields = ('user', 'recipe')
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe'),
+                message=_("Рецепт уже добавлен в избранное")
             )
         ]
 

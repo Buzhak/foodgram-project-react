@@ -4,10 +4,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status, viewsets, permissions, mixins
 from django.shortcuts import get_object_or_404, get_list_or_404
+from django.http import HttpResponse
 
-from core.core import print_recipes
-from recipes.models import Recipe, Tag, Shoping_cart, Ingredient
-from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer
+from core.core import create_shopping_list
+from recipes.models import Recipe, Tag, Shoping_cart, Ingredient, Favorite
+from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer
 # from users.models import User
 # from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
 
@@ -73,8 +74,7 @@ from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSer
 #         # )
 #         # serializer.is_valid(raise_exception=True)
 #         # serializer.save()
-#         # return Response(serializer.data)
-
+#         # return Response(serializer.data)    
 
 class RetriveListViewSet(mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
@@ -140,10 +140,30 @@ class RecipeViewSet(ModelViewSet):
     
     @action(detail=False)
     def download_shopping_cart(self, request):
-        print_recipes(request.user)
-        message = {'response': 'держи файлик, чувак'}
-        return Response(message ,status=status.HTTP_200_OK)
+        filename = "shoping_list.txt"
+        content = create_shopping_list(request.user)
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+        return response
 
+    @action(methods=['post', 'delete'], detail=True)
+    def favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = request.user
+        if request.method == 'POST':
+            data = {'user': user.id, 'recipe': recipe.id}
+            shop_cart_serializer = FavoriteSerializer(data=data)
+            if shop_cart_serializer.is_valid():
+                shop_cart_serializer.save()
+                resipe_serializer = RecipeShortSerializer(recipe)
+                return Response(resipe_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(shop_cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if Favorite.objects.filter(user=user.id, recipe=recipe.id).exists():
+            Favorite.objects.filter(user=user.id, recipe=recipe.id).delete()
+            message = {'errors': 'рецепт удалён из списка избранного'}
+            return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+        message = {'errors': 'репепт отсутствует в списке избранного'}
+        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
 
 # class ShopingCartViewSet(viewsets.ViewSet):
 #     @action(methods=['post', 'delete'], detail=True, url_path='{r_pk}/shoping_cart/')

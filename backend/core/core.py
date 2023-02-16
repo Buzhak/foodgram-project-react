@@ -28,16 +28,18 @@ def send_email(email: str, confirmation_code: str, username: str):
         fail_silently=False,  # Сообщать об ошибках («молчать ли об ошибках?»)
     )
 
-def print_recipes(user):
+def create_shopping_list(user) -> str:
     cart = Shoping_cart.objects.filter(user=user)
+    shopping_list = ''
     for recipe in cart:
-        print('_' * 30)
-        print('')
-        print(recipe.recipe)
-        print('')
+        shopping_list += ('_' * 30 + '\n')
+        shopping_list += ('' + '\n')
+        shopping_list += (f'{recipe.recipe}' + '\n')
+        shopping_list += ('' + '\n')
         ingredients = get_list_or_404(Ingredient, recipe=recipe.recipe)
         count = 0
         for ingredient in ingredients:
             count += 1
-            print(f'{count}. {ingredient}')
-    print('_' * 30)
+            shopping_list += (f'{count}. {ingredient}' + '\n')
+    shopping_list += ('_' * 30 + '\n')
+    return shopping_list
