@@ -5,9 +5,12 @@ from rest_framework.decorators import action
 from rest_framework import status, viewsets, permissions, mixins
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import HttpResponse
+from rest_framework.serializers import ModelSerializer
+from django.db.models import Model
 
 from core.core import create_shopping_list
-from recipes.models import Recipe, Tag, Shoping_cart, Ingredient, Favorite
+from users.models import Follow, User
+from recipes.models import Recipe, Tag, Shoping_cart, Favorite
 from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer
 # from users.models import User
 # from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
@@ -76,6 +79,24 @@ from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSer
 #         # serializer.save()
 #         # return Response(serializer.data)    
 
+def create_cart_or_favorite(user: User, recipe: Recipe, serializer: ModelSerializer) -> Response():
+    data = {'user': user.id, 'recipe': recipe.id}
+    shop_cart_serializer = serializer(data=data)
+    if shop_cart_serializer.is_valid():
+        shop_cart_serializer.save()
+        resipe_serializer = RecipeShortSerializer(recipe)
+        return Response(resipe_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(shop_cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def delete_cart_or_favorite(user: User, recipe: Recipe, model: Model, title: str) -> Response():
+    if model.objects.filter(user=user.id, recipe=recipe.id).exists():
+        model.objects.filter(user=user.id, recipe=recipe.id).delete()
+        message = {'errors': f'рецепт удалён из списка {title}'}
+        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+    message = {'errors': f'репепт отсутствует в списке {title}'}
+    return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+
+
 class RetriveListViewSet(mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
                         viewsets.GenericViewSet):
@@ -124,20 +145,9 @@ class RecipeViewSet(ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
         if request.method == 'POST':
-            data = {'user': user.id, 'recipe': recipe.id}
-            shop_cart_serializer = ShopingCatdSerializer(data=data)
-            if shop_cart_serializer.is_valid():
-                shop_cart_serializer.save()
-                resipe_serializer = RecipeShortSerializer(recipe)
-                return Response(resipe_serializer.data, status=status.HTTP_201_CREATED)
-            return Response(shop_cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if Shoping_cart.objects.filter(user=user.id, recipe=recipe.id).exists():
-            Shoping_cart.objects.filter(user=user.id, recipe=recipe.id).delete()
-            message = {'errors': 'рецепт удалён из списка покупок'}
-            return Response(message ,status=status.HTTP_400_BAD_REQUEST)
-        message = {'errors': 'репепт отсутствует в списке покупок'}
-        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
-    
+            return create_cart_or_favorite(user, recipe, ShopingCatdSerializer)
+        return delete_cart_or_favorite(user, recipe, Shoping_cart, 'покупок')
+
     @action(detail=False)
     def download_shopping_cart(self, request):
         filename = "shoping_list.txt"
@@ -151,45 +161,14 @@ class RecipeViewSet(ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
         if request.method == 'POST':
-            data = {'user': user.id, 'recipe': recipe.id}
-            shop_cart_serializer = FavoriteSerializer(data=data)
-            if shop_cart_serializer.is_valid():
-                shop_cart_serializer.save()
-                resipe_serializer = RecipeShortSerializer(recipe)
-                return Response(resipe_serializer.data, status=status.HTTP_201_CREATED)
-            return Response(shop_cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if Favorite.objects.filter(user=user.id, recipe=recipe.id).exists():
-            Favorite.objects.filter(user=user.id, recipe=recipe.id).delete()
-            message = {'errors': 'рецепт удалён из списка избранного'}
-            return Response(message ,status=status.HTTP_400_BAD_REQUEST)
-        message = {'errors': 'репепт отсутствует в списке избранного'}
-        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
-
-# class ShopingCartViewSet(viewsets.ViewSet):
-#     @action(methods=['post', 'delete'], detail=True, url_path='{r_pk}/shoping_cart/')
-#     def shoping_cart(self, r_pk, request):
-#         if request.method=='POST':
-#             recipe = get_object_or_404(Recipe, pk=r_pk) 
-#             user = request.user
-#             Shoping_cart.objects.create(user=user, pecipe=recipe)
-#             return Response(status=status.HTTP_201_CREATED)
+            return create_cart_or_favorite(user, recipe, FavoriteSerializer)
+        return delete_cart_or_favorite(user, recipe, Favorite, 'избранного')
 
 
-# class ShopingCartViewSet(viewsets.ViewSet):
-    
-
-
-    # def create(self, request, r_pk):
-    #     recipe = get_object_or_404(Recipe, pk=r_pk)
-    #     user = request.user
-    #     Shoping_cart.objects.create(user=user, pecipe=recipe)
-    #     return Response(status=status.HTTP_201_CREATED)
-
-    # def delete(self, request, r_pk):
-    #     recipe = get_object_or_404(Recipe, pk=pk)
-    #     user = request.user
-    #     Shoping_cart.objects.delete(user=user, pecipe=recipe)
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-
+class SubscribeViewSet(viewsets.ViewSet):
+    @action(detail=False)
+    def subscriptions(self, request):
+        subscriptions = get_list_or_404(Follow, user=request.user)
+        print(subscriptions)
+        data = {'errors': 'я тут'}
+        return Response(data, status=status.HTTP_200_OK)
