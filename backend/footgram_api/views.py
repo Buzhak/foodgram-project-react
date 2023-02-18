@@ -11,7 +11,7 @@ from django.db.models import Model
 from core.core import create_shopping_list
 from users.models import Follow, User
 from recipes.models import Recipe, Tag, Shoping_cart, Favorite
-from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer
+from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer, SubscibeUserSerializer
 # from users.models import User
 # from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
 
@@ -168,7 +168,9 @@ class RecipeViewSet(ModelViewSet):
 class SubscribeViewSet(viewsets.ViewSet):
     @action(detail=False)
     def subscriptions(self, request):
-        subscriptions = get_list_or_404(Follow, user=request.user)
-        print(subscriptions)
-        data = {'errors': 'я тут'}
-        return Response(data, status=status.HTTP_200_OK)
+        subscriptions = Follow.objects.filter(user=request.user).values_list('author', flat=True)
+        users = User.objects.filter(id__in=subscriptions)
+        serializer = SubscibeUserSerializer(users, many=True)
+        serializer.context['request'] = self.request
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

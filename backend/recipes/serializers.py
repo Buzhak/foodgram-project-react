@@ -4,6 +4,7 @@ from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 
+from users.models import User, Follow
 from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient, TagRecipe, Favorite
 from users.serializers import DefaultUserSerializer
 
@@ -168,3 +169,19 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         instance.delete()
         Ingredient.objects.filter(recipe=instance).delete()
 
+
+class SubscibeUserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = RecipeShortSerializer(many=True)
+    recipes_count = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_is_subscribed(self, obj):
+        return Follow.objects.filter(user=self.context["request"].user,author=obj).exists()
+
+    def get_recipes_count(self, obj):
+        return Recipe.objects.filter(author=obj).count()
+
+    

@@ -34,20 +34,6 @@ class DefaultUserSerializer(serializers.ModelSerializer):
         return Follow.objects.filter(user=self.context["request"].user,author=obj).exists()
 
 
-# class UserCodeSerializer(serializers.Serializer):
-#     username = serializers.CharField(max_length=150)
-#     confirmation_code = serializers.CharField(max_length=CODE_LENGTH)
-
-#     def validate(self, data):
-#         user = get_object_or_404(User, username=data['username'])
-#         if Code.objects.filter(
-#             user=user,
-#             code=data['confirmation_code']
-#         ).exists():
-#             return data
-#         raise serializers.ValidationError('Неверные данные')
-
-
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(max_length=150)
