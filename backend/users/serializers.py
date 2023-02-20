@@ -1,8 +1,10 @@
 from core.constants import CODE_LENGTH
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from django.utils.translation import ugettext_lazy as _
 
 from .models import User, Follow
+from .validators import not_self_subscribe
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -45,3 +47,26 @@ class LoginSerializer(serializers.Serializer):
         ).exists():
             return data
         raise serializers.ValidationError('Неверный логин или пароль')
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    class Meta():
+        model = Follow
+        fields = ('user', 'author')
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'author'),
+                message=_("Вы уже подписаны на этого пользователя")
+            )
+        ]
+
+    def validate(self, data):
+        """
+        Проверка подписки на самого себя
+        """
+        if data['user'] == data['author']:
+            raise serializers.ValidationError("Нельзя подписыватья на самого себя.")
+        return data
+

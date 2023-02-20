@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
 
 INVALID_USER_NAME = ['me', ]
 
@@ -18,3 +19,8 @@ def validate_user_name(value):
               ' пожалуйста, выберете другое'),
             params={'value': value},
         )
+
+def not_self_subscribe(user, author):
+    if user == author:
+        raise serializers.ValidationError('Вы не можете подписываться на самого себя.')
+

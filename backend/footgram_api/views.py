@@ -13,7 +13,7 @@ from users.models import Follow, User
 from recipes.models import Recipe, Tag, Shoping_cart, Favorite
 from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer, SubscibeUserSerializer
 # from users.models import User
-# from users.serializers import CreateUserSerializer, DefaultUserSerializer, LoginSerializer
+from users.serializers import FollowSerializer
 
 
 # class UserViewSet(viewsets.ViewSet):
@@ -168,9 +168,28 @@ class RecipeViewSet(ModelViewSet):
 class SubscribeViewSet(viewsets.ViewSet):
     @action(detail=False)
     def subscriptions(self, request):
-        subscriptions = Follow.objects.filter(user=request.user).values_list('author', flat=True)
-        users = User.objects.filter(id__in=subscriptions)
+        users = User.objects.filter(following__user=self.request.user)
         serializer = SubscibeUserSerializer(users, many=True)
         serializer.context['request'] = self.request
-
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['post', 'delete'], detail=True)
+    def subscribe(self, request, pk):
+        author = get_object_or_404(User, pk=pk)
+        user = request.user
+        if request.method == 'POST':
+            data = {'user': user.id, 'author': author.id}
+            print(data)
+            serialzer = FollowSerializer(data=data)
+            if serialzer.is_valid():
+                serialzer.save()
+                subscribe_serializer = SubscibeUserSerializer(author)
+                subscribe_serializer.context['request'] = self.request
+                return Response(subscribe_serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if Follow.objects.filter(user=user.id, author=author.id).exists():
+            Follow.objects.filter(user=user.id, author=author.id).delete()
+            message = {'errors': f'вы отписались от пользовалетя {author.username}'}
+            return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+        message = {'errors': f'Подписки не существует'}
+        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
