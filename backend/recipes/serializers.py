@@ -185,3 +185,9 @@ class SubscibeUserSerializer(serializers.ModelSerializer):
         return Recipe.objects.filter(author=obj).count()
 
     
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'measurement_unit')
+
+    

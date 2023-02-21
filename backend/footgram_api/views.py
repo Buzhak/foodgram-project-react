@@ -10,9 +10,8 @@ from django.db.models import Model
 
 from core.core import create_shopping_list
 from users.models import Follow, User
-from recipes.models import Recipe, Tag, Shoping_cart, Favorite
-from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer, SubscibeUserSerializer
-# from users.models import User
+from recipes.models import Recipe, Tag, Shoping_cart, Favorite, Product
+from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer, SubscibeUserSerializer, ProductSerializer
 from users.serializers import FollowSerializer
 
 
@@ -101,6 +100,7 @@ class RetriveListViewSet(mixins.RetrieveModelMixin,
                         mixins.ListModelMixin,
                         viewsets.GenericViewSet):
     pass
+
 
 class OnlyListViewSet(mixins.ListModelMixin,
                       viewsets.GenericViewSet):
@@ -193,3 +193,8 @@ class SubscribeViewSet(viewsets.ViewSet):
             return Response(message ,status=status.HTTP_400_BAD_REQUEST)
         message = {'errors': f'Подписки не существует'}
         return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProductViewSet(RetriveListViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
