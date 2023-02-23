@@ -33,6 +33,12 @@ class DefaultUserSerializer(serializers.ModelSerializer):
         fields = ('username', 'id', 'email', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
+        '''
+        Проверка подписан ли пользаователь делающий запрос на выбранного автора.
+        Если запрос делает анонимный пользователь, функция будет возвращать "False".
+        '''
+        if self.context["request"].user.username == '':
+            return False
         return Follow.objects.filter(user=self.context["request"].user,author=obj).exists()
 
 

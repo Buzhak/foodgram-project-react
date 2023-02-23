@@ -198,3 +198,4 @@ class SubscribeViewSet(viewsets.ViewSet):
 class ProductViewSet(RetriveListViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = None
