@@ -42,17 +42,17 @@ class DefaultUserSerializer(serializers.ModelSerializer):
         return Follow.objects.filter(user=self.context["request"].user,author=obj).exists()
 
 
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
-    password = serializers.CharField(max_length=150)
+# class LoginSerializer(serializers.Serializer):
+#     email = serializers.CharField(max_length=150)
+#     password = serializers.CharField(max_length=150)
 
-    def validate(self, data):
-        if User.objects.filter(
-            username=data['username'],
-            password=data['password']
-        ).exists():
-            return data
-        raise serializers.ValidationError('Неверный логин или пароль')
+#     def validate(self, data):
+#         if User.objects.filter(
+#             email=data['email'],
+#             password=data['password']
+#         ).exists():
+#             return data
+#         raise serializers.ValidationError('Неверный email или пароль')
 
 
 class FollowSerializer(serializers.ModelSerializer):
