@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
-from .common import auth_client as new_client
+# from .common import auth_client as new_client
 PASSWORD = "Qwerty123"
 EMAIL = "vpupkin@yandex.ru"
 USERNAME = "vasya.pupkin"
