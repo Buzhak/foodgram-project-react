@@ -28,13 +28,13 @@ class Test_tags_api():
         data = response.json()
 
         assert 'name' in data, (
-                'Поле name должно присутсвовать'
+                'Поле name должно присутсвовать в response'
             )
         
         assert 'color' in data, (
-                'Поле color должно присутсвовать'
+                'Поле color должно присутсвовать в response'
             )
         
         assert 'slug' in data, (
-                'Поле slug должно присутсвовать'
+                'Поле slug должно присутсвовать в response'
             )

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 
 from users.models import User, Follow
-from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient, TagRecipe, Favorite
+from .models import Product, Recipe, Tag, Favorite, Shoping_cart, Ingredient, Favorite
 from users.serializers import DefaultUserSerializer
 
 
@@ -66,9 +66,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited', 'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time')
 
     def get_is_favorited(self, obj):
+        if self.context["request"].user.username == '':
+            return False
         return Favorite.objects.filter(user=self.context["request"].user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
+        if self.context["request"].user.username == '':
+            return False
         return Shoping_cart.objects.filter(user=self.context["request"].user, recipe=obj).exists()
 
     def perform_create(self, serializer):
