@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
-# from .common import auth_client as new_client
+from .common import auth_client as new_client
 PASSWORD = "Qwerty123"
 EMAIL = "vpupkin@yandex.ru"
 USERNAME = "vasya.pupkin"
@@ -128,4 +128,9 @@ class TestUserRegistration:
         assert response.status_code == 204, (
                 f'Страница {self.logout} должна быть доступна для авторизованного пользователя'
             )
-  
+
+        auth_user = new_client('new_user', 'new_user@eximple.com')
+        response = auth_user.get(self.user_me)
+        assert response.status_code == 200, (
+                f'Страница {self.user_me} текущего пользователья должны быть доступна для авторизованного пользователя'
+            )
