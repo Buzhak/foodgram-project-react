@@ -77,7 +77,7 @@ class RecipeViewSet(ModelViewSet):
             reсipe = get_object_or_404(Recipe, id=serializer.data['id'])
             serializer = RecipeSerializer(reсipe)
             serializer.context['request'] = self.request
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         message = {'detail': "У вас нет прав для выполнения этой операции."}
         return Response(message, status=status.HTTP_403_FORBIDDEN)
 
