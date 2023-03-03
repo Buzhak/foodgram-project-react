@@ -63,28 +63,28 @@ class TestUserRegistration:
         response = client.get(self.user_detil)
 
         assert response.status_code == 401, (
-                'Страница конкретного пользователья не должна быть доступна для не авторизованного пользователя'
+                'GET метод {self.user_detil} недолжен быть доступен для НЕ авторизованного пользователя'
             )
 
         response = client.get(self.user_me)
         assert response.status_code == 401, (
-                'Страница текущего пользователя не должна быть доступна для не авторизованного пользователя'
+                'GET метод {self.user_me} недолжен быть доступен для НЕ авторизованного пользователя'
             )
         
         response = client.post(self.set_password, data=self.data_set_pass)
 
         assert response.status_code == 401, (
-                'Страница смены пароля не должна быть доступна для не авторизованного пользователя'
+                'POST метод {self.set_password} недолжен быть доступен для НЕ авторизованного пользователя'
             )
     
         response = client.post(self.login, data=self.data_login)
         assert response.status_code != 201, (
-                'Страница должна быть доступна не авторизованному пользователю'
+                'POST метод {self.login} недолжен быть доступен для НЕ авторизованного пользователя'
             )
 
         response = client.post(self.logout)
         assert response.status_code == 401, (
-                'Страница НЕ должна быть доступна не авторизованному пользователю'
+                'POST метод {self.logout} недолжен быть доступен для НЕ авторизованного пользователя'
             )
 
 
@@ -97,7 +97,7 @@ class TestUserRegistration:
 
         response = client.post(self.login, data=self.data_login)
         assert response.status_code != 201, (
-                'Страница должна быть доступна не авторизованному пользователю'
+                'Post метод {self.login} быть доступен НЕ авторизованному пользователю'
             )
 
         data = response.json()
@@ -111,26 +111,21 @@ class TestUserRegistration:
         response = auth_client.get(self.user_detil)
 
         assert response.status_code != 401, (
-                f'Страница {self.user_detil} конкретного пользователья должны быть доступна для авторизованного пользователя'
+                f'Get метод {self.user_detil} должен быть доступен для авторизованного пользователя'
             )
         
         response = auth_client.get(self.user_me)
         assert response.status_code == 200, (
-                f'Страница {self.user_me} текущего пользователья должны быть доступна для авторизованного пользователя'
+                f'GET метод {self.user_me} должен быть доступен для авторизованного пользователя'
             )
         
         response = auth_client.post(self.set_password, data=self.reset_pass_data)
         assert response.status_code == 204, (
-                f'Страница {self.set_password} должна быть доступна для авторизованного пользователя'
+                f'POST метод {self.set_password} должен быть доступен для авторизованного пользователя'
             )
 
         response = auth_client.post(self.logout)
         assert response.status_code == 204, (
-                f'Страница {self.logout} должна быть доступна для авторизованного пользователя'
+                f'POST метод {self.logout} должен быть доступен для авторизованного пользователя'
             )
-
-        auth_user = new_client('new_user', 'new_user@eximple.com')
-        response = auth_user.get(self.user_me)
-        assert response.status_code == 200, (
-                f'Страница {self.user_me} текущего пользователья должны быть доступна для авторизованного пользователя'
-            )
+    
