@@ -2,8 +2,8 @@ import pytest
 from rest_framework.test import APIClient
 from django.shortcuts import get_object_or_404
 
-from .common import auth_client, create_product, create_tag_data, create_recipe_data
-from recipes.models import Product, Tag, Recipe
+from .common import auth_client, create_product, create_recipe_data
+from recipes.models import Recipe
 
 
 class Test_recipes_api():

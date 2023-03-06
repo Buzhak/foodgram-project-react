@@ -82,18 +82,18 @@ class RecipeViewSet(ModelViewSet):
         return Response(message, status=status.HTTP_403_FORBIDDEN)
 
     @action(methods=['post', 'delete'], detail=True)
-    def shoping_cart(self, request, pk):
+    def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
         if request.method == 'POST':
             return create_cart_or_favorite(user, recipe, ShopingCatdSerializer)
         return delete_cart_or_favorite(user, recipe, Shoping_cart, 'покупок')
 
-    @action(detail=False)
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
         filename = "shoping_list.txt"
         content = create_shopping_list(request.user)
-        response = HttpResponse(content, content_type='text/plain')
+        response = HttpResponse(content, content_type='text/plain') 
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
         return response
 
