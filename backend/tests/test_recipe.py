@@ -7,64 +7,40 @@ from recipes.models import Recipe
 
 
 class Test_recipes_api():
-    list = '/api/recipes/'
-    detail = '/api/recipes/1/'
-    detail_2 = '/api/recipes/2/'
 
-    
     @pytest.mark.django_db(transaction=True)
     def test_recipe_api(self, client):
-
-        response = client.get(self.list)
-
-        assert response.status_code == 200, (
-            f'GET метод `{self.list}` должен юбыть доступен всем пользователям'
-        )
-        
-        response = client.post(self.list)
-
-        assert response.status_code == 401, (
-            f'POST метод `{self.list}` должен быть доступен только аутентифицированным пользователям'
-        )
-        
-        response = client.patch(self.detail)
-
-        assert response.status_code == 401, (
-            f'PATCH метод `{self.detail}` должен быть доступен только аутентифицированным пользователям'
-        )
-
-        response = client.delete(self.detail)
-        
-        assert response.status_code == 401, (
-            f'DELETE метод `{self.detail}` должен быть доступен только аутентифицированным пользователям'
-        )
-
         user_1 = auth_client('user', 'user@ya.ru')
         user_2 = new_user = auth_client('user_2', 'user_2@ya.ru')
         admin = auth_client('admin', 'admin@ya.ru', is_admin=True)
-        response = user_1.get(self.list)
+
+        resepe_data_1 = create_recipe_data(user_1)
+        resepe_data_2 = create_recipe_data(user_1)
+
+        recipe_list = '/api/recipes/'
+        detail = f'/api/recipes/{resepe_data_1.data["id"]}/'
+        detail_2 = f'/api/recipes/{resepe_data_2.data["id"]}/'
+
+
+        assert resepe_data_1.status_code == 201, (
+            f'POST метод `{recipe_list}` должен быть доступен только аутентифицированным пользователям'
+        )
+        response = user_1.get(recipe_list)
 
         assert response.status_code == 200, (
-            f'GET метод `{self.list}` должен юбыть доступен всем пользователям'
+            f'GET метод `{recipe_list}` должен юбыть доступен всем пользователям'
         )
 
-
-        response = create_recipe_data(user_1)
-
-        assert response.status_code == 201, (
-            f'POST метод `{self.list}` должен быть доступен только аутентифицированным пользователям'
+        response = user_1.get(detail)
+        res = Recipe.objects.all()
+        assert response.status_code == 200, (
+            f'GET метод `{detail}`должен быть доступен только аутентифицированным пользователям'
         )
 
-        response = user_1.get(self.detail)
+        response = user_2.get(detail)
 
         assert response.status_code == 200, (
-            f'GET метод `{self.detail}` должен быть доступен только аутентифицированным пользователям'
-        )
-
-        response = user_2.get(self.detail)
-
-        assert response.status_code == 200, (
-            f'GET метод `{self.detail}` должен быть доступен другим аутентифицированным пользователям'
+            f'GET метод `{detail}` должен быть доступен другим аутентифицированным пользователям'
         )
 
         data_update = {
@@ -73,50 +49,72 @@ class Test_recipes_api():
             'tags': [],
             'cooking_time': 100
         }
-        response = user_1.patch(self.detail, data_update, format='json')
+        response = user_1.patch(detail, data_update, format='json')
 
         assert response.status_code == 200, (
-            f'PATCH метод `{self.detail}` должен быть доступен только автору рецепта'
+            f'PATCH метод `{detail}` должен быть доступен только автору рецепта'
         )
 
-        response = user_2.patch(self.detail, data_update, format='json')
+        response = user_2.patch(detail, data_update, format='json')
 
         assert response.status_code == 403, (
-            f'PATCH метод `{self.detail}` НЕ должен быть доступен другим аутентифицированным пользователям'
+            f'PATCH метод `{detail}` НЕ должен быть доступен другим аутентифицированным пользователям'
         )
         
-        recipe = get_object_or_404(Recipe, id=1)
+        recipe = get_object_or_404(Recipe, id=2)
 
         assert recipe.cooking_time == 100, (
             f'Метод PATCH не работает. Нет изменения записи в БД'
         )
 
-        response = user_2.delete(self.detail)
+        response = user_2.delete(detail)
         
         assert response.status_code == 403, (
-            f'DELETE метод `{self.detail}` НЕ должен быть доступен другим аутентифицированным пользователям'
+            f'DELETE метод `{detail}` НЕ должен быть доступен другим аутентифицированным пользователям'
         )
 
-        response = user_1.delete(self.detail)
+        response = user_1.delete(detail)
         
         assert response.status_code == 204, (
-            f'DELETE метод `{self.detail}` должен быть доступен только автору рецепта'
+            f'DELETE метод `{detail}` должен быть доступен только автору рецепта'
         )
 
         assert not Recipe.objects.filter(id=1).exists(), (
             'запись должна удаляться из БД после успешного DELETE метода'
         )
 
-        create_recipe_data(user_1)
-
-        response = admin.patch(self.detail_2, data_update, format='json')
+        response = admin.patch(detail_2, data_update, format='json')
 
         assert response.status_code == 200, (
-            f'PATCH метод `{self.detail_2}` должен быть доступен админу'
+            f'PATCH метод `{detail_2}` должен быть доступен админу'
         )
         
-        response = admin.delete(self.detail_2)
+        response = admin.delete(detail_2)
         
         assert response.status_code == 204, (
-            f'DELETE метод `{self.detail_2}` должен быть доступен админу'
+            f'DELETE метод `{detail_2}` должен быть доступен админу'
+        )
+
+        response = client.get(recipe_list)
+
+        assert response.status_code == 200, (
+            f'GET метод `{recipe_list}` должен юбыть доступен всем пользователям'
+        )
+        
+        response = client.post(recipe_list)
+
+        assert response.status_code == 401, (
+            f'POST метод `{recipe_list}` должен быть доступен только аутентифицированным пользователям'
+        )
+        
+        response = client.patch(detail)
+        
+        assert response.status_code == 401, (
+            f'PATCH метод `{detail}` должен быть доступен только аутентифицированным пользователям'
+        )
+
+        response = client.delete(detail)
+        
+        assert response.status_code == 401, (
+            f'DELETE метод `{detail}` должен быть доступен только аутентифицированным пользователям'
         )

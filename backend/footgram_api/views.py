@@ -29,7 +29,7 @@ def delete_cart_or_favorite(user: User, recipe: Recipe, model: Model, title: str
     if model.objects.filter(user=user.id, recipe=recipe.id).exists():
         model.objects.filter(user=user.id, recipe=recipe.id).delete()
         message = {'errors': f'рецепт удалён из списка {title}'}
-        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+        return Response(message ,status=status.HTTP_204_NO_CONTENT)
     message = {'errors': f'репепт отсутствует в списке {title}'}
     return Response(message ,status=status.HTTP_400_BAD_REQUEST)
 

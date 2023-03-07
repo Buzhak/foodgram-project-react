@@ -15,8 +15,7 @@ def auth_client(username: str, email: str, is_admin=False):
         "last_name": NAME,
         "password": PASSWORD
     }
-    # client = APIClient()
-    # client.post('/api/users/', data=data)
+    
     if is_admin:
         User.objects.create_superuser(**data)
     else:
