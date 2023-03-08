@@ -1,8 +1,7 @@
 import pytest
-from rest_framework.test import APIClient
 
+from recipes.models import Tag
 from .common import create_tag_data
-
 
 pytestmark = pytest.mark.django_db
 

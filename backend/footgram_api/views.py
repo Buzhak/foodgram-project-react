@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status, viewsets, permissions, mixins
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from rest_framework.serializers import ModelSerializer
 from django.db.models import Model
@@ -131,7 +131,7 @@ class SubscribeViewSet(viewsets.ViewSet):
         if Follow.objects.filter(user=user.id, author=author.id).exists():
             Follow.objects.filter(user=user.id, author=author.id).delete()
             message = {'errors': f'вы отписались от пользовалетя {author.username}'}
-            return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+            return Response(message ,status=status.HTTP_204_NO_CONTENT)
         message = {'errors': f'Подписки не существует'}
         return Response(message ,status=status.HTTP_400_BAD_REQUEST)
 
