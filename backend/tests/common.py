@@ -57,10 +57,25 @@ def create_tag_data():
         data
     )
 
+
 def create_product():
-    Product.objects.create(
-        name='Картошка',
-        measurement_unit='шт.'
+    data = [
+        {
+            "name": "картошка",
+            "measurement_unit": "кг"
+        },
+        {
+            "name": "морковь",
+            "measurement_unit": "кг"
+        },
+        {
+            "name": "молоко",
+            "measurement_unit": "мл"
+        }
+    ]
+    data = [Product(**i) for i in data]
+    Product.objects.bulk_create(
+        data
     )
 
 

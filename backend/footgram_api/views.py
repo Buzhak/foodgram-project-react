@@ -2,9 +2,10 @@ from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework import status, viewsets, permissions, mixins
+from rest_framework import status, viewsets, permissions, mixins, filters
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+
 from rest_framework.serializers import ModelSerializer
 from django.db.models import Model
 
@@ -139,4 +140,7 @@ class SubscribeViewSet(viewsets.ViewSet):
 class ProductViewSet(RetriveListViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.AllowAny]
     pagination_class = None
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
