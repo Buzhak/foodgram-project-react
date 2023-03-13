@@ -18,7 +18,7 @@ class Tag(models.Model):
 
 class Product(models.Model):
     name = models.CharField('название продукта', max_length=200)
-    measurement_unit = models.CharField('единица измерения', max_length=200)
+    measurement_unit = models.CharField('единицы измерения', max_length=200)
 
     def __str__(self) -> str:
         return f'{self.name}, {self.measurement_unit}'
@@ -45,7 +45,7 @@ class Recipe(models.Model):
     text = models.TextField('описание',null=True, blank=True)
     cooking_time = models.IntegerField('время приготовления в минутах')
     pub_date = models.DateTimeField(auto_now_add=True)
-
+    
 
     class Meta:
         verbose_name = "Рецепт"
