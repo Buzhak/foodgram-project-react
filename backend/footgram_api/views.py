@@ -1,43 +1,62 @@
-from rest_framework.viewsets import ViewSet, ModelViewSet
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework import status, viewsets, permissions, mixins, filters
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
-
-from rest_framework.serializers import ModelSerializer
 from django.db.models import Model
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import (filters, mixins, permissions, serializers, status,
+                            viewsets)
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from core.core import create_shopping_list
+from recipes.models import Favorite, Product, Recipe, ShopingCart, Tag
+from recipes.serializers import (CreateRecipeSerializer, FavoriteSerializer,
+                                 ProductSerializer, RecipeSerializer,
+                                 RecipeShortSerializer, ShopingCatdSerializer,
+                                 SubscibeUserSerializer, TagSerializer)
 from users.models import Follow, User
-from recipes.models import Recipe, Tag, Shoping_cart, Favorite, Product
-from recipes.serializers import RecipeSerializer, TagSerializer, CreateRecipeSerializer, RecipeShortSerializer, ShopingCatdSerializer, FavoriteSerializer, SubscibeUserSerializer, ProductSerializer
 from users.serializers import FollowSerializer
+
 from .permissions import AuthorOrAdminOrReadOnly
 
 
-def create_cart_or_favorite(user: User, recipe: Recipe, serializer: ModelSerializer) -> Response():
+def create_cart_or_favorite(
+    user: User,
+    recipe: Recipe,
+    serializer: serializers.ModelSerializer
+) -> Response():
     data = {'user': user.id, 'recipe': recipe.id}
     shop_cart_serializer = serializer(data=data)
     if shop_cart_serializer.is_valid():
         shop_cart_serializer.save()
         resipe_serializer = RecipeShortSerializer(recipe)
-        return Response(resipe_serializer.data, status=status.HTTP_201_CREATED)
-    return Response(shop_cart_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            resipe_serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+    return Response(
+        shop_cart_serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
-def delete_cart_or_favorite(user: User, recipe: Recipe, model: Model, title: str) -> Response():
+
+def delete_cart_or_favorite(
+    user: User,
+    recipe: Recipe,
+    model: Model,
+    title: str
+) -> Response():
     if model.objects.filter(user=user.id, recipe=recipe.id).exists():
         model.objects.filter(user=user.id, recipe=recipe.id).delete()
         message = {'errors': f'рецепт удалён из списка {title}'}
-        return Response(message ,status=status.HTTP_204_NO_CONTENT)
+        return Response(message, status=status.HTTP_204_NO_CONTENT)
     message = {'errors': f'репепт отсутствует в списке {title}'}
-    return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+    return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RetriveListViewSet(mixins.RetrieveModelMixin,
-                        mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
+class RetriveListViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
     pass
 
 
@@ -52,7 +71,7 @@ class TagViewSet(RetriveListViewSet):
     serializer_class = TagSerializer
 
 
-class RecipeViewSet(ModelViewSet):     
+class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorOrAdminOrReadOnly]
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
@@ -61,7 +80,6 @@ class RecipeViewSet(ModelViewSet):
         serializer = CreateRecipeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(author=self.request.user)
-            
             reсipe = get_object_or_404(Recipe, id=serializer.data['id'])
             serializer = RecipeSerializer(reсipe)
             serializer.context['request'] = self.request
@@ -71,7 +89,10 @@ class RecipeViewSet(ModelViewSet):
     def update(self, request, pk, *args, **kwargs):
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.user == recipe.author or request.user.is_staff:
-            serializer = CreateRecipeSerializer(instance=recipe, data=request.data)
+            serializer = CreateRecipeSerializer(
+                instance=recipe,
+                data=request.data
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
@@ -88,14 +109,19 @@ class RecipeViewSet(ModelViewSet):
         user = request.user
         if request.method == 'POST':
             return create_cart_or_favorite(user, recipe, ShopingCatdSerializer)
-        return delete_cart_or_favorite(user, recipe, Shoping_cart, 'покупок')
+        return delete_cart_or_favorite(user, recipe, ShopingCart, 'покупок')
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
         filename = "shoping_list.txt"
         content = create_shopping_list(request.user)
-        response = HttpResponse(content, content_type='text/plain') 
-        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+        response = HttpResponse(
+            content,
+            content_type='text/plain'
+        )
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(
+            filename
+        )
         return response
 
     @action(methods=['post', 'delete'], detail=True)
@@ -127,14 +153,21 @@ class SubscribeViewSet(viewsets.ViewSet):
                 serialzer.save()
                 subscribe_serializer = SubscibeUserSerializer(author)
                 subscribe_serializer.context['request'] = self.request
-                return Response(subscribe_serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    subscribe_serializer.data,
+                    status=status.HTTP_201_CREATED
+                )
+            return Response(
+                serialzer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         if Follow.objects.filter(user=user.id, author=author.id).exists():
             Follow.objects.filter(user=user.id, author=author.id).delete()
-            message = {'errors': f'вы отписались от пользовалетя {author.username}'}
-            return Response(message ,status=status.HTTP_204_NO_CONTENT)
-        message = {'errors': f'Подписки не существует'}
-        return Response(message ,status=status.HTTP_400_BAD_REQUEST)
+            message = {
+                'errors': f'вы отписались от пользовалетя {author.username}'
+            }
+            return Response(message, status=status.HTTP_204_NO_CONTENT)
+        message = {'errors': 'Подписки не существует'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProductViewSet(RetriveListViewSet):
@@ -142,5 +175,5 @@ class ProductViewSet(RetriveListViewSet):
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('name', )

@@ -20,7 +20,9 @@ def validate_user_name(value):
             params={'value': value},
         )
 
+
 def not_self_subscribe(user, author):
     if user == author:
-        raise serializers.ValidationError('Вы не можете подписываться на самого себя.')
-
+        raise serializers.ValidationError(
+            'Вы не можете подписываться на самого себя.'
+        )
