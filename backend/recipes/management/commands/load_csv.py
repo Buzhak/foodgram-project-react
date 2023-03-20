@@ -2,7 +2,6 @@ from csv import DictReader
 
 from django.conf import settings
 from django.core.management import BaseCommand
-
 from recipes.models import Product
 
 DATA_PATH = '/static/data/'

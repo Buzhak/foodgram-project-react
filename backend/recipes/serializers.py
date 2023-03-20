@@ -4,7 +4,6 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-
 from users.models import Follow, User
 from users.serializers import DefaultUserSerializer
 
