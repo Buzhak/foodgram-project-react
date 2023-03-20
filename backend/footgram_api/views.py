@@ -1,17 +1,16 @@
+from core.core import create_shopping_list
 from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import (filters, mixins, permissions, serializers, status,
-                            viewsets)
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
-from core.core import create_shopping_list
 from recipes.models import Favorite, Product, Recipe, ShopingCart, Tag
 from recipes.serializers import (CreateRecipeSerializer, FavoriteSerializer,
                                  ProductSerializer, RecipeSerializer,
                                  RecipeShortSerializer, ShopingCatdSerializer,
                                  SubscibeUserSerializer, TagSerializer)
+from rest_framework import (filters, mixins, permissions, serializers, status,
+                            viewsets)
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from users.models import Follow, User
 from users.serializers import FollowSerializer
 

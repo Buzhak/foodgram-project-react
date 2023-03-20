@@ -4,7 +4,6 @@ import string
 from django.conf import settings
 from django.core.mail import send_mail as django_send_mail
 from django.shortcuts import get_list_or_404
-
 from recipes.models import Ingredient, ShopingCart
 
 from .constants import TOKEN_LENGHT
