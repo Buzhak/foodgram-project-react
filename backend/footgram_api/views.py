@@ -2,6 +2,7 @@ from core.core import create_shopping_list
 from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Product, Recipe, ShopingCart, Tag
 from recipes.serializers import (CreateRecipeSerializer, FavoriteSerializer,
                                  ProductSerializer, RecipeSerializer,
@@ -67,6 +68,7 @@ class OnlyListViewSet(mixins.ListModelMixin,
 class TagViewSet(RetriveListViewSet):
     permission_classes = [permissions.AllowAny]
     queryset = Tag.objects.all()
+    pagination_class = None
     serializer_class = TagSerializer
 
 
@@ -173,6 +175,7 @@ class ProductViewSet(RetriveListViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     pagination_class = None
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('name', )
+    filterset_fields = ('name', )
+    search_fields = ('^name', )

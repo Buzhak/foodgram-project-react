@@ -31,7 +31,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = Product
-        fields = ('name', 'measurement_unit')
+        fields = ('name', 'measurement_unit', 'id')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
