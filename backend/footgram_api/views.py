@@ -3,6 +3,7 @@ from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import NumberFilter, CharFilter, FilterSet, BooleanFilter
 from recipes.models import Favorite, Product, Recipe, ShopingCart, Tag
 from recipes.serializers import (CreateRecipeSerializer, FavoriteSerializer,
                                  ProductSerializer, RecipeSerializer,
@@ -71,11 +72,52 @@ class TagViewSet(RetriveListViewSet):
     pagination_class = None
     serializer_class = TagSerializer
 
+# НАДО СОЗДАТЬ ОТДЕЛЬНЫЙ ФАЙЛ С ФИЛЬТРАМИ
+
+class ProductFilter(FilterSet):
+    tags = CharFilter(field_name='tags__slug')
+    is_favorited = NumberFilter(method='filter_favorited')
+    is_in_shopping_cart = NumberFilter(method='filter_shopping_cart')
+    
+    def filter_favorited(self, queryset, name, value):
+        if self.request.user.is_authenticated:
+            if value == 1:
+                return queryset.filter(
+                    favorites__user=self.request.user
+                )
+            if value == 0:
+                return queryset.exclude(
+                    favorites__user=self.request.user
+                )
+        return queryset
+    
+    def filter_shopping_cart(self, queryset, name, value):
+        if self.request.user.is_authenticated:
+            if value == 1:
+                return queryset.filter(
+                    shopingcarts__user=self.request.user
+                )
+            if value == 0:
+                return queryset.exclude(
+                    shopingcarts__user=self.request.user
+                )
+        return queryset
+
+    class Meta:
+        model = Recipe
+        fields = ['is_favorited', 'is_in_shopping_cart' ,'tags']
+        # fields = ['is_favorited', 'tags']
+
+# ___________________________________________
 
 class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorOrAdminOrReadOnly]
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    # pagination_class = None
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = ProductFilter
+
 
     def create(self, request):
         serializer = CreateRecipeSerializer(data=request.data)

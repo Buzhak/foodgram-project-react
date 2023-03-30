@@ -14,7 +14,7 @@ class Tag(models.Model):
     slug = models.SlugField('слаг', unique=True)
 
     def __str__(self) -> str:
-        return self.name
+        return self.slug
 
     class Meta:
         verbose_name = "Тег"
