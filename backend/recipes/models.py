@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 from .validators import hex_color_validaror
