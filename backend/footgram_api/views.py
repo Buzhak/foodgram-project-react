@@ -141,6 +141,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class SubscriptionsViewSet(OnlyListViewSet):
     serializer_class = SubscibeUserSerializer
     pagination_class = pagination.LimitOffsetPagination
+
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
 
