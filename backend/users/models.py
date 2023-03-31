@@ -12,8 +12,8 @@ class User(AbstractUser):
         unique=True,
         validators=[validate_user_name, validate_symbols]
     )
-    first_name = models.CharField(max_length=150, blank=True)
-    last_name = models.CharField(max_length=150, blank=True)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
     password = models.CharField(max_length=150)
 
     def __str__(self):

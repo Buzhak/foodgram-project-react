@@ -12,5 +12,5 @@ class UserAdmin(admin.ModelAdmin):
         model = User
 
 
-admin.site.register(Code)
+# admin.site.register(Code)
 admin.site.register(Follow)

@@ -2,20 +2,19 @@ from core.core import create_shopping_list
 from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django_filters import CharFilter, FilterSet, NumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Product, Recipe, ShopingCart, Tag
 from recipes.serializers import (CreateRecipeSerializer, FavoriteSerializer,
                                  ProductSerializer, RecipeSerializer,
                                  RecipeShortSerializer, ShopingCatdSerializer,
                                  SubscibeUserSerializer, TagSerializer)
-from rest_framework import (filters, mixins, permissions, serializers, status,
+from rest_framework import (filters, mixins, pagination, permissions, serializers, status,
                             viewsets)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Follow, User
 from users.serializers import FollowSerializer
-
+from .filters import ProductFilter
 from .permissions import AuthorOrAdminOrReadOnly
 
 
@@ -75,39 +74,7 @@ class TagViewSet(RetriveListViewSet):
 # НАДО СОЗДАТЬ ОТДЕЛЬНЫЙ ФАЙЛ С ФИЛЬТРАМИ
 
 
-class ProductFilter(FilterSet):
-    tags = CharFilter(field_name='tags__slug')
-    is_favorited = NumberFilter(method='filter_favorited')
-    is_in_shopping_cart = NumberFilter(method='filter_shopping_cart')
 
-    def filter_favorited(self, queryset, name, value):
-        if self.request.user.is_authenticated:
-            if value == 1:
-                return queryset.filter(
-                    favorites__user=self.request.user
-                )
-            if value == 0:
-                return queryset.exclude(
-                    favorites__user=self.request.user
-                )
-        return queryset
-
-    def filter_shopping_cart(self, queryset, name, value):
-        if self.request.user.is_authenticated:
-            if value == 1:
-                return queryset.filter(
-                    shopingcarts__user=self.request.user
-                )
-            if value == 0:
-                return queryset.exclude(
-                    shopingcarts__user=self.request.user
-                )
-        return queryset
-
-    class Meta:
-        model = Recipe
-        fields = ['is_favorited', 'is_in_shopping_cart', 'tags']
-        # fields = ['is_favorited', 'tags']
 
 # ___________________________________________
 
@@ -116,7 +83,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorOrAdminOrReadOnly]
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    # pagination_class = None
+    pagination_class = pagination.LimitOffsetPagination
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = ProductFilter
 
@@ -177,13 +144,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return delete_cart_or_favorite(user, recipe, Favorite, 'избранного')
 
 
+class SubscriptionsViewSet(OnlyListViewSet):
+    serializer_class = SubscibeUserSerializer
+    pagination_class = pagination.LimitOffsetPagination
+    def get_queryset(self):
+        return User.objects.filter(following__user=self.request.user)
+
+
 class SubscribeViewSet(viewsets.ViewSet):
-    @action(detail=False)
-    def subscriptions(self, request):
-        users = User.objects.filter(following__user=self.request.user)
-        serializer = SubscibeUserSerializer(users, many=True)
-        serializer.context['request'] = self.request
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    pagination_class = pagination.LimitOffsetPagination
+
+    # @action(detail=False, pagination_class=pagination.LimitOffsetPagination)
+    # def subscriptions(self, request):
+    #     users = User.objects.filter(following__user=self.request.user)
+    #     serializer = SubscibeUserSerializer(users , many=True)
+    #     serializer.context['request'] = self.request
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, pk):
