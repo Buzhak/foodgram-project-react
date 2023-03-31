@@ -8,12 +8,13 @@ from recipes.serializers import (CreateRecipeSerializer, FavoriteSerializer,
                                  ProductSerializer, RecipeSerializer,
                                  RecipeShortSerializer, ShopingCatdSerializer,
                                  SubscibeUserSerializer, TagSerializer)
-from rest_framework import (filters, mixins, pagination, permissions, serializers, status,
-                            viewsets)
+from rest_framework import (filters, mixins, pagination, permissions,
+                            serializers, status, viewsets)
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Follow, User
 from users.serializers import FollowSerializer
+
 from .filters import ProductFilter
 from .permissions import AuthorOrAdminOrReadOnly
 
@@ -70,13 +71,6 @@ class TagViewSet(RetriveListViewSet):
     queryset = Tag.objects.all()
     pagination_class = None
     serializer_class = TagSerializer
-
-# НАДО СОЗДАТЬ ОТДЕЛЬНЫЙ ФАЙЛ С ФИЛЬТРАМИ
-
-
-
-
-# ___________________________________________
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -153,13 +147,6 @@ class SubscriptionsViewSet(OnlyListViewSet):
 
 class SubscribeViewSet(viewsets.ViewSet):
     pagination_class = pagination.LimitOffsetPagination
-
-    # @action(detail=False, pagination_class=pagination.LimitOffsetPagination)
-    # def subscriptions(self, request):
-    #     users = User.objects.filter(following__user=self.request.user)
-    #     serializer = SubscibeUserSerializer(users , many=True)
-    #     serializer.context['request'] = self.request
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['post', 'delete'], detail=True)
     def subscribe(self, request, pk):

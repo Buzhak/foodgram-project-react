@@ -8,9 +8,12 @@ router_tag.register('', TagViewSet)
 router_resipe = SimpleRouter()
 router_resipe.register('', RecipeViewSet)
 router_users = SimpleRouter()
-# router_users.register('', SubscribeViewSet, basename='subscriptions')
 router_users.register('', SubscribeViewSet, basename='subscribe')
-router_users.register('subscriptions' ,SubscriptionsViewSet , basename='subscriptions')
+router_users.register(
+    'subscriptions',
+    SubscriptionsViewSet,
+    basename='subscriptions'
+)
 router_ingredients = SimpleRouter()
 router_ingredients.register('', ProductViewSet, basename='ingredients')
 
