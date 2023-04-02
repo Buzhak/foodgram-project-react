@@ -1,11 +1,11 @@
 from django.db import models
 from users.models import User
 
-from .validators import hex_color_validaror
+from .validators import hex_color_validaror, positive_number_validator
 
 
 class Tag(models.Model):
-    name = models.CharField('тег', max_length=256)
+    name = models.CharField('тег', max_length=256, unique=True)
     color = models.CharField(
         'цвет',
         max_length=7,
@@ -23,7 +23,7 @@ class Tag(models.Model):
 
 class Product(models.Model):
     name = models.CharField('название продукта', max_length=200)
-    measurement_unit = models.CharField('единицы измерения', max_length=200)
+    measurement_unit = models.CharField('единицы измерения', max_length=20)
 
     def __str__(self) -> str:
         return f'{self.name}, {self.measurement_unit}'
@@ -53,7 +53,10 @@ class Recipe(models.Model):
         blank=True
     )
     text = models.TextField('описание', null=True, blank=True)
-    cooking_time = models.IntegerField('время приготовления в минутах')
+    cooking_time = models.IntegerField(
+        'время приготовления в минутах',
+        validators=[positive_number_validator]
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -71,7 +74,17 @@ class Ingredient(models.Model):
         on_delete=models.CASCADE,
         related_name='%(class)ss',
         verbose_name='Продукты')
-    amount = models.IntegerField('количество', blank=True, null=True)
+    '''
+    Я оставил поле amount НЕ обязательным,
+    т.к при значинии 0 или отсутствии значения будет выводится "по вкусу"
+    Исправлю, если это принципиально.
+    '''
+    amount = models.IntegerField(
+        'количество',
+        blank=True,
+        null=True,
+        validators=[positive_number_validator]
+    )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -90,6 +103,11 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
+        constraints = [
+            models.UniqueConstraint(
+                fields=('product', 'recipe'),
+                name='unique ingredients'),
+        ]
 
 
 class TagRecipe(models.Model):

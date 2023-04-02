@@ -12,3 +12,10 @@ def hex_color_validaror(value):
             _('%(value)s укажите цвет в "HEX" формате - "#******"'),
             params={'value': value},
         )
+
+def positive_number_validator(value):
+    if value < 0: 
+        raise ValidationError(
+            _('Пожалуйста укажите значение числом больше нуля.'),
+            params={'value': value},
+        )
