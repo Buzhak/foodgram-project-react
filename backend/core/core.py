@@ -29,4 +29,3 @@ def send_email(email: str, confirmation_code: str, username: str):
         [email],  # Это поле "Кому" (можно указать список адресов)
         fail_silently=False,  # Сообщать об ошибках («молчать ли об ошибках?»)
     )
-

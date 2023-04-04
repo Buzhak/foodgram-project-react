@@ -1,7 +1,6 @@
 import base64
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from users.models import Follow, User
@@ -48,7 +47,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-    def get_amount(self, obj):        
+    def get_amount(self, obj):     
         return obj.amount
 
 
@@ -112,12 +111,10 @@ class TagCreateSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='product.id')
-    
+
     class Meta():
         model = Ingredient
         fields = ('id', 'amount')
-
-
 
 
 class ShopingCatdSerializer(serializers.ModelSerializer):
