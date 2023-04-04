@@ -47,7 +47,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-    def get_amount(self, obj): 
+    def get_amount(self, obj):
         return obj.amount
 
 
