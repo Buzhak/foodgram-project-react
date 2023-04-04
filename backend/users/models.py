@@ -1,4 +1,4 @@
-from core.constants import CODE_LENGTH
+# from core.constants import CODE_LENGTH
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -20,16 +20,16 @@ class User(AbstractUser):
         return self.username
 
 
-class Code(models.Model):
-    code = models.CharField(max_length=CODE_LENGTH)
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='%(class)ss'
-    )
+# class Code(models.Model):
+#     code = models.CharField(max_length=CODE_LENGTH)
+#     user = models.ForeignKey(
+#         User,
+#         on_delete=models.CASCADE,
+#         related_name='%(class)ss'
+#     )
 
-    def __str__(self):
-        return self.code
+#     def __str__(self):
+#         return self.code
 
 
 class Follow(models.Model):

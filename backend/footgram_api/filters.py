@@ -21,20 +21,12 @@ class ProductFilter(FilterSet):
                 return queryset.filter(
                     favorites__user=self.request.user
                 )
-            if value == 0:
-                return queryset.exclude(
-                    favorites__user=self.request.user
-                )
         return queryset
 
     def filter_shopping_cart(self, queryset, name, value):
         if self.request.user.is_authenticated:
             if value == 1:
                 return queryset.filter(
-                    shopingcarts__user=self.request.user
-                )
-            if value == 0:
-                return queryset.exclude(
                     shopingcarts__user=self.request.user
                 )
         return queryset
