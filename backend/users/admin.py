@@ -8,4 +8,5 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ['username', 'email', 'is_staff']
     list_filter = []
 
+
 admin.site.register(Follow)

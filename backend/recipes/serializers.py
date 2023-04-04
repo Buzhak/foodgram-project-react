@@ -7,8 +7,8 @@ from users.models import Follow, User
 from users.serializers import DefaultUserSerializer
 
 from .core import create_ingredients
-from .validators import positive_number_validator
 from .models import Favorite, Ingredient, Product, Recipe, ShopingCart, Tag
+from .validators import positive_number_validator
 
 
 class Base64ImageField(serializers.ImageField):
@@ -112,7 +112,7 @@ class TagCreateSerializer(serializers.ModelSerializer):
 
 class CreateIngredientSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='product.id')
-    amount = serializers.IntegerField(validators=[positive_number_validator,])
+    amount = serializers.IntegerField(validators=[positive_number_validator, ])
 
     class Meta():
         model = Ingredient
@@ -154,7 +154,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         many=True
     )
     image = Base64ImageField(required=False, allow_null=True)
-    cooking_time = serializers.IntegerField(validators=[positive_number_validator,])
+    cooking_time = serializers.IntegerField(
+        validators=[positive_number_validator, ]
+    )
 
     def validate_ingredients(self, value):
         id_list = []
