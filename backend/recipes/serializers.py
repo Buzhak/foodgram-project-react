@@ -1,5 +1,6 @@
 import base64
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -109,7 +110,7 @@ class TagCreateSerializer(serializers.ModelSerializer):
         fields = ('id')
 
 
-class IngredientCreateSerializer(serializers.ModelSerializer):
+class CreateIngredientSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='product.id')
 
     class Meta():
@@ -148,8 +149,36 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all()
     )
-    ingredients = IngredientCreateSerializer(many=True)
+    ingredients = CreateIngredientSerializer(
+        many=True
+    )
     image = Base64ImageField(required=False, allow_null=True)
+
+    def validate_ingredients(self, value):
+        id_list = []
+        for ingr in value:
+            id = ingr['product']['id']
+            if id in id_list:
+                raise serializers.ValidationError([{
+                    'Ингрредиенты': [
+                        'Нельзя добавлять одинаковые ингредиенты'
+                    ]
+                }])
+            id_list.append(id)
+        return value
+    
+    def validate_tags(self, value):
+        tags = []
+        for tag in value:
+            if tag.slug in tags:
+                raise serializers.ValidationError([{
+                    'Теги': [
+                        'Нельзя добавлять одинаковые теги'
+                    ]
+                }])
+            tags.append(tag.slug)
+        return value
+
 
     class Meta():
         model = Recipe
