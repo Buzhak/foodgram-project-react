@@ -36,7 +36,7 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     search_fields = ['name', ]
-    list_display = ['name', 'measurement_unit']
+    list_display = ['id', 'name', 'measurement_unit']
     list_filter = []
 
     class Meta:
@@ -45,7 +45,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ['product', 'amount', 'recipe']
+    list_display = ['product', 'id', 'amount', 'recipe']
     list_filter = []
 
     class Meta:

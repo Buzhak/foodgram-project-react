@@ -15,7 +15,7 @@ def hex_color_validaror(value):
 
 
 def positive_number_validator(value):
-    if value < 0:
+    if value < 1:
         raise ValidationError(
             _('Пожалуйста укажите значение числом больше нуля.'),
             params={'value': value},

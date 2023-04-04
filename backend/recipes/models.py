@@ -74,15 +74,8 @@ class Ingredient(models.Model):
         on_delete=models.CASCADE,
         related_name='%(class)ss',
         verbose_name='Продукты')
-    '''
-    Я оставил поле amount НЕ обязательным,
-    т.к при значинии 0 или отсутствии значения будет выводится "по вкусу"
-    Исправлю, если это принципиально.
-    '''
     amount = models.IntegerField(
         'количество',
-        blank=True,
-        null=True,
         validators=[positive_number_validator]
     )
     recipe = models.ForeignKey(
@@ -93,8 +86,6 @@ class Ingredient(models.Model):
     )
 
     def __str__(self) -> str:
-        if self.amount == 0 or self.amount is None:
-            return f'{self.product.name} - по вкусу'
         return (
             f'{self.product.name} - '
             f'{self.amount} {self.product.measurement_unit}'

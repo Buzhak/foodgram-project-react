@@ -1,4 +1,3 @@
-from core.core import create_shopping_list
 from django.db.models import Model
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -15,6 +14,7 @@ from rest_framework.response import Response
 from users.models import Follow, User
 from users.serializers import FollowSerializer
 
+from .core import create_shopping_list
 from .filters import ProductFilter
 from .permissions import AuthorOrAdminOrReadOnly
 

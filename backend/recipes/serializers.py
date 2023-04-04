@@ -7,6 +7,7 @@ from rest_framework import serializers
 from users.models import Follow, User
 from users.serializers import DefaultUserSerializer
 
+from .core import create_ingredients
 from .models import Favorite, Ingredient, Product, Recipe, ShopingCart, Tag
 
 
@@ -34,6 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='product.id', read_only=True)
     name = serializers.CharField(
         source='product.name'
     )
@@ -46,9 +48,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-    def get_amount(self, obj):
-        if obj.amount == 0 or obj.amount is None:
-            return 'по вкусу'
+    def get_amount(self, obj):        
         return obj.amount
 
 
@@ -112,10 +112,12 @@ class TagCreateSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='product.id')
-
+    
     class Meta():
         model = Ingredient
         fields = ('id', 'amount')
+
+
 
 
 class ShopingCatdSerializer(serializers.ModelSerializer):
@@ -172,24 +174,12 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         recipe.save()
-
-        for ingredient in ingredients:
-            current_ingredient = get_object_or_404(
-                Product,
-                pk=ingredient['product']['id']
-            )
-            Ingredient.objects.create(
-                product=current_ingredient,
-                amount=ingredient['amount'],
-                recipe=recipe
-            )
-
+        create_ingredients(ingredients, recipe)
         return recipe
 
     def update(self, instance, validated_data):
-        tags = validated_data.get('tags', instance.tags)
+        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        Ingredient.objects.filter(recipe=instance).delete()
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
         instance.tags.set(tags)
@@ -199,18 +189,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             instance.cooking_time
         )
         instance.save()
-
-        for ingredient in ingredients:
-            current_ingredient = get_object_or_404(
-                Product,
-                pk=ingredient['product']['id']
-            )
-            Ingredient.objects.create(
-                product=current_ingredient,
-                amount=ingredient['amount'],
-                recipe=instance
-            )
-
+        Ingredient.objects.filter(recipe=instance).delete()
+        create_ingredients(ingredients, instance)
         return instance
 
     def delete(self, instance):
