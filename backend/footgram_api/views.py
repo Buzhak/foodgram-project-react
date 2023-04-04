@@ -25,16 +25,16 @@ def create_cart_or_favorite(
     serializer: serializers.ModelSerializer
 ) -> Response():
     data = {'user': user.id, 'recipe': recipe.id}
-    shop_cart_serializer = serializer(data=data)
-    if shop_cart_serializer.is_valid():
-        shop_cart_serializer.save()
+    current_serializer = serializer(data=data)
+    if current_serializer.is_valid():
+        current_serializer.save()
         resipe_serializer = RecipeShortSerializer(recipe)
         return Response(
             resipe_serializer.data,
             status=status.HTTP_201_CREATED
         )
     return Response(
-        shop_cart_serializer.errors,
+        current_serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
 
@@ -155,7 +155,6 @@ class SubscribeViewSet(viewsets.ViewSet):
         user = request.user
         if request.method == 'POST':
             data = {'user': user.id, 'author': author.id}
-            print(data)
             serialzer = FollowSerializer(data=data)
             if serialzer.is_valid():
                 serialzer.save()

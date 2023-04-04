@@ -20,3 +20,4 @@ def positive_number_validator(value):
             _('Пожалуйста укажите значение числом больше нуля.'),
             params={'value': value},
         )
+    return value
