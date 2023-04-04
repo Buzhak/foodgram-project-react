@@ -1,6 +1,5 @@
 import base64
 
-from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -166,7 +165,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 }])
             id_list.append(id)
         return value
-    
+
     def validate_tags(self, value):
         tags = []
         for tag in value:
@@ -178,7 +177,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 }])
             tags.append(tag.slug)
         return value
-
 
     class Meta():
         model = Recipe
