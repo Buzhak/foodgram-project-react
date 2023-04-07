@@ -15,8 +15,8 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=150)
     password = models.CharField(max_length=150)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    # USERNAME_FIELD = 'email'
+    # REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.username

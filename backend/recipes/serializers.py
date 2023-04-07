@@ -161,8 +161,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, value):
         id_list = []
         for ingr in value:
-            if 'product' in ingr:
-                print("я тут")
             id = ingr['product']['id']
             if id in id_list:
                 raise serializers.ValidationError([{

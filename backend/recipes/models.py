@@ -55,7 +55,7 @@ class Recipe(models.Model):
     text = models.TextField('описание', null=True, blank=True)
     cooking_time = models.IntegerField(
         'время приготовления в минутах',
-        validators=[positive_number_validator]
+        validators=[positive_number_validator, ]
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 
@@ -76,7 +76,7 @@ class Ingredient(models.Model):
         verbose_name='Продукты')
     amount = models.IntegerField(
         'количество',
-        validators=[positive_number_validator]
+        validators=[positive_number_validator, ]
     )
     recipe = models.ForeignKey(
         Recipe,
@@ -97,7 +97,7 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('product', 'recipe'),
-                name='unique ingredients'),
+                name='unique ingredients')
         ]
 
 
