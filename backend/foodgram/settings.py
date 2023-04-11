@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'djoser',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
-    'footgram_api.apps.FootgramApiConfig',
+    'foodgram_api.apps.FoodgramApiConfig',
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
