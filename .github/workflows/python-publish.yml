@@ -42,4 +42,4 @@ jobs:
         with:
           context: backend/
           push: true
-          tags: ${{ secrets.MY_DOCKER_LOGIN }}/foodgram:latest 
+          tags: ${{ secrets.MY_DOCKER_LOGIN }}/foodgram:latest
