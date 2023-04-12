@@ -143,25 +143,7 @@ class SubscriptionsViewSet(OnlyListViewSet):
     pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
-        queryset = User.objects.filter(following__user=self.request.user)
-        # queryset = User.objects.filter(
-        #         following__user=self.request.user
-        #     ).prefetch_related(
-        #         Prefetch('recipes', queryset=Recipe.objects.all()
-        #     )
-        # )
-        return queryset
-        # return User.objects.filter(following__user=self.request.user)
-    
-    # def list(self, request):
-    #     queryset = self.get_queryset()
-    #     page = self.paginate_queryset(queryset)
-    #     recipes_limit = request.GET.get('recipes_limit')
-    #     if page is not None:
-    #         serializer = self.get_serializer(page, many=True)
-    #         return self.get_paginated_response(serializer.data)
-    #     serializer = self.serializer_class(queryset, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+        return User.objects.filter(following__user=self.request.user)
 
 
 class SubscribeViewSet(viewsets.ViewSet):
