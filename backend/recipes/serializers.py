@@ -248,7 +248,6 @@ class SubscibeUserSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         author_recipes = obj.recipes.all()
-        print(author_recipes)
         try:
             recipes_limit = self.context.get('request').GET['recipes_limit']
             author_recipes = author_recipes[: int(recipes_limit)]

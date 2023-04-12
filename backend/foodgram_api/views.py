@@ -77,7 +77,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorOrAdminOrReadOnly]
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    pagination_class = pagination.LimitOffsetPagination
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = ProductFilter
 
@@ -140,7 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class SubscriptionsViewSet(OnlyListViewSet):
     serializer_class = SubscibeUserSerializer
-    pagination_class = pagination.LimitOffsetPagination
+    # pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
         return User.objects.filter(following__user=self.request.user)
