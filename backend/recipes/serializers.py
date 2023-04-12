@@ -230,7 +230,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
 class SubscibeUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    # recipes = RecipeShortSerializer(many=True)
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -255,7 +254,7 @@ class SubscibeUserSerializer(serializers.ModelSerializer):
             author_recipes = author_recipes[: int(recipes_limit)]
         except (MultiValueDictKeyError, ValueError):
             pass
-        
+
         if author_recipes:
             serializer = RecipeShortSerializer(
                 author_recipes,
@@ -270,7 +269,6 @@ class SubscibeUserSerializer(serializers.ModelSerializer):
         ).exists()
 
     def get_recipes_count(self, obj):
-        # return Recipe.objects.filter(author=obj).count()
         return obj.recipes.count()
 
 
