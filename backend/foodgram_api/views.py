@@ -181,7 +181,7 @@ class ProductViewSet(RetriveListViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     pagination_class = None
-    filterset_fields = ('name', )
-    search_fields = ('^name', )
+    filterset_fields = ['name']
+    search_fields = ['name']
