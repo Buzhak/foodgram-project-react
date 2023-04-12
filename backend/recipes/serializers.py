@@ -1,6 +1,7 @@
 import base64
 
 from django.core.files.base import ContentFile
+from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from users.models import Follow, User
@@ -229,7 +230,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
 class SubscibeUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    recipes = RecipeShortSerializer(many=True)
+    # recipes = RecipeShortSerializer(many=True)
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -245,13 +247,31 @@ class SubscibeUserSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
 
+    def get_recipes(self, obj):
+        author_recipes = obj.recipes.all()
+        print(author_recipes)
+        try:
+            recipes_limit = self.context.get('request').GET['recipes_limit']
+            author_recipes = author_recipes[: int(recipes_limit)]
+        except (MultiValueDictKeyError, ValueError):
+            pass
+        
+        if author_recipes:
+            serializer = RecipeShortSerializer(
+                author_recipes,
+                many=True
+            )
+            return serializer.data
+        return []
+
     def get_is_subscribed(self, obj):
         return Follow.objects.filter(
             user=self.context["request"].user, author=obj
         ).exists()
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj).count()
+        # return Recipe.objects.filter(author=obj).count()
+        return obj.recipes.count()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
